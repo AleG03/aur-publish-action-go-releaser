@@ -1,0 +1,28 @@
+name: "AUR Update and Publish"
+description: "Publish a package to the Arch User Repository (AUR) on GitHub release"
+author: varrcan
+branding:
+  color: blue
+  icon: package
+inputs:
+  ssh_private_key:
+    description: "The private SSH key to use to push the changes to AUR"
+    required: true
+  package_name:
+    description: "AUR package name"
+    default: ${{ github.event.repository.name }}
+  git_username:
+    description: "The username to use when creating the AUR repo commit"
+    default: "AUR Release Action"
+  git_email:
+    description: "The email to use when creating the AUR repo commit"
+    default: "github-action-bot@no-reply.com"
+
+runs:
+  using: "docker"
+  image: "Dockerfile"
+  env:
+    INPUT_SSH_PRIVATE_KEY: ${{ inputs.ssh_private_key }}
+    INPUT_PACKAGE_NAME: ${{ inputs.package_name }}
+    INPUT_GIT_USERNAME: ${{ inputs.git_username }}
+    INPUT_GIT_EMAIL: ${{ inputs.git_email }}
