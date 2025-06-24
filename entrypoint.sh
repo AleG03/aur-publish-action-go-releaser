@@ -81,17 +81,14 @@ update_pkgbuild() {
 	sed -i "s/pkgrel=.*$/pkgrel=1/" PKGBUILD
 	
 	# Update source URLs to match GoReleaser naming convention
-	# Handle various source patterns
-	if grep -q "source.*=" PKGBUILD; then
-		# Replace any source line with GoReleaser pattern
-		sed -i "s|source.*=.*|source=(\"https://github.com/${GITHUB_REPOSITORY}/releases/download/v\${pkgver}/${repo_name}_\${pkgver}_linux_amd64.tar.gz\")|" PKGBUILD
-	fi
-	
-	# Handle architecture-specific sources if they exist
-	if grep -q "source_x86_64.*=" PKGBUILD; then
+	# Convert single source to architecture-specific sources for multi-arch support
+	if grep -q "source.*=" PKGBUILD && ! grep -q "source_x86_64.*=" PKGBUILD; then
+		# Remove single source line and add arch-specific sources
+		sed -i "/^source.*=/d" PKGBUILD
+		sed -i "/^pkgrel=/a source_x86_64=(\"https://github.com/${GITHUB_REPOSITORY}/releases/download/v\${pkgver}/${repo_name}_\${pkgver}_linux_amd64.tar.gz\")\nsource_aarch64=(\"https://github.com/${GITHUB_REPOSITORY}/releases/download/v\${pkgver}/${repo_name}_\${pkgver}_linux_arm64.tar.gz\")" PKGBUILD
+	elif grep -q "source_x86_64.*=" PKGBUILD; then
+		# Update existing arch-specific sources
 		sed -i "s|source_x86_64.*=.*|source_x86_64=(\"https://github.com/${GITHUB_REPOSITORY}/releases/download/v\${pkgver}/${repo_name}_\${pkgver}_linux_amd64.tar.gz\")|" PKGBUILD
-	fi
-	if grep -q "source_aarch64.*=" PKGBUILD; then
 		sed -i "s|source_aarch64.*=.*|source_aarch64=(\"https://github.com/${GITHUB_REPOSITORY}/releases/download/v\${pkgver}/${repo_name}_\${pkgver}_linux_arm64.tar.gz\")|" PKGBUILD
 	fi
 	
