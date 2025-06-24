@@ -72,7 +72,6 @@ clone_aur_repo() {
 update_pkgbuild() {
 	local pkgver_sed_escaped
 	local repo_name=${GITHUB_REPOSITORY##*/}
-	local clean_version=${PKGVER#v}  # Remove 'v' prefix for filename
 	
 	# Escape for sed
 	pkgver_sed_escaped=$(printf '%s\n' "$PKGVER" | sed -e 's/[\/&]/\\&/g')
@@ -120,8 +119,9 @@ push_to_aur() {
 
 act_group_start "Version"
 VERSION=$(get_version)
-PKGVER=${VERSION##*/v}
+PKGVER=${VERSION#v}  # Remove 'v' prefix completely
 echo "Version: $VERSION"
+echo "Clean version: $PKGVER"
 act_group_end
 
 act_group 'Configure SSH' setup_ssh
