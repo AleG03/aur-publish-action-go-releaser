@@ -84,16 +84,16 @@ update_pkgbuild() {
 	# Update source URLs to match GoReleaser naming convention
 	# Handle various source patterns
 	if grep -q "source.*=" PKGBUILD; then
-		# Replace any source line with GoReleaser pattern (note: using clean_version without 'v')
-		sed -i "s|source.*=.*|source=(\"https://github.com/${GITHUB_REPOSITORY}/releases/download/v\${pkgver}/${repo_name}_${clean_version}_linux_amd64.tar.gz\")|" PKGBUILD
+		# Replace any source line with GoReleaser pattern
+		sed -i "s|source.*=.*|source=(\"https://github.com/${GITHUB_REPOSITORY}/releases/download/v\${pkgver}/${repo_name}_\${pkgver}_linux_amd64.tar.gz\")|" PKGBUILD
 	fi
 	
 	# Handle architecture-specific sources if they exist
 	if grep -q "source_x86_64.*=" PKGBUILD; then
-		sed -i "s|source_x86_64.*=.*|source_x86_64=(\"https://github.com/${GITHUB_REPOSITORY}/releases/download/v\${pkgver}/${repo_name}_${clean_version}_linux_amd64.tar.gz\")|" PKGBUILD
+		sed -i "s|source_x86_64.*=.*|source_x86_64=(\"https://github.com/${GITHUB_REPOSITORY}/releases/download/v\${pkgver}/${repo_name}_\${pkgver}_linux_amd64.tar.gz\")|" PKGBUILD
 	fi
 	if grep -q "source_aarch64.*=" PKGBUILD; then
-		sed -i "s|source_aarch64.*=.*|source_aarch64=(\"https://github.com/${GITHUB_REPOSITORY}/releases/download/v\${pkgver}/${repo_name}_${clean_version}_linux_arm64.tar.gz\")|" PKGBUILD
+		sed -i "s|source_aarch64.*=.*|source_aarch64=(\"https://github.com/${GITHUB_REPOSITORY}/releases/download/v\${pkgver}/${repo_name}_\${pkgver}_linux_arm64.tar.gz\")|" PKGBUILD
 	fi
 	
 	sudo -u builder updpkgsums
