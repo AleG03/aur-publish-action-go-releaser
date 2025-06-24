@@ -4,6 +4,10 @@ Publish a package to the Arch User Repository (AUR) on GitHub release.
 
 In total, this action will clone the AUR package repository, update the `PKGBUILD`/`.SRCINFO` and push to AUR.
 
+## GoReleaser Compatibility
+
+This action is compatible with GoReleaser and automatically detects GoReleaser asset naming patterns (e.g., `project_1.0.0_linux_amd64.tar.gz`). It will update your PKGBUILD source URLs to match the actual release assets created by GoReleaser.
+
 ## Inputs
 
 | Name                | Description                                           | Default                              |
@@ -17,20 +21,41 @@ In total, this action will clone the AUR package repository, update the `PKGBUIL
 
 ## Example
 
+### GoReleaser Integration
+
 ```yaml
-name: AUR Publish
+name: Release
 
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - 'v*'
 
 jobs:
+  goreleaser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v4
+        with:
+          go-version: stable
+      - uses: goreleaser/goreleaser-action@v5
+        with:
+          distribution: goreleaser
+          version: latest
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   aur-publish:
+    needs: goreleaser
     runs-on: ubuntu-latest
     environment: AUR
     steps:
       - uses: actions/checkout@v4
-      - uses: varrcan/aur-publish-action@v1
+      - uses: varrcan/aur-publish-action-go-releaser@v1
         with:
           ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
           # the rest are optional

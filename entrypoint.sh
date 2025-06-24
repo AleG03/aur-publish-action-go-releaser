@@ -34,6 +34,18 @@ get_version() {
 	echo "$version"
 }
 
+get_goreleaser_assets() {
+	local version="$1"
+	local repo_name="$2"
+	local clean_version=${version#v}
+	
+	# Common GoReleaser patterns
+	echo "${repo_name}_${clean_version}_linux_amd64.tar.gz"
+	echo "${repo_name}_${clean_version}_linux_arm64.tar.gz"
+	echo "${repo_name}_${clean_version}_darwin_amd64.tar.gz"
+	echo "${repo_name}_${clean_version}_darwin_arm64.tar.gz"
+}
+
 setup_ssh() {
 	export SSH_PATH="$HOME/.ssh"
 	# shellcheck disable=SC2174
@@ -59,10 +71,26 @@ clone_aur_repo() {
 
 update_pkgbuild() {
 	local pkgver_sed_escaped
+	local repo_name=${GITHUB_REPOSITORY##*/}
+	local clean_version=${PKGVER#v}
+	
 	# Escape for sed
 	pkgver_sed_escaped=$(printf '%s\n' "$PKGVER" | sed -e 's/[\/&]/\\&/g')
+	
+	# Update version and reset release number
 	sed -i "s/pkgver=.*$/pkgver=$pkgver_sed_escaped/" PKGBUILD
 	sed -i "s/pkgrel=.*$/pkgrel=1/" PKGBUILD
+	
+	# Update source URLs to match GoReleaser naming convention
+	if grep -q "source.*=.*\${pkgname}" PKGBUILD; then
+		# Replace source URLs with GoReleaser pattern
+		sed -i "s|source.*=.*|source=(\"https://github.com/${GITHUB_REPOSITORY}/releases/download/v\${pkgver}/${repo_name}_\${pkgver}_linux_amd64.tar.gz\")|" PKGBUILD
+	elif grep -q "source_x86_64.*=" PKGBUILD; then
+		# Handle architecture-specific sources
+		sed -i "s|source_x86_64.*=.*|source_x86_64=(\"https://github.com/${GITHUB_REPOSITORY}/releases/download/v\${pkgver}/${repo_name}_\${pkgver}_linux_amd64.tar.gz\")|" PKGBUILD
+		sed -i "s|source_aarch64.*=.*|source_aarch64=(\"https://github.com/${GITHUB_REPOSITORY}/releases/download/v\${pkgver}/${repo_name}_\${pkgver}_linux_arm64.tar.gz\")|" PKGBUILD
+	fi
+	
 	sudo -u builder updpkgsums
 	sudo -u builder makepkg --printsrcinfo | sudo -u builder tee .SRCINFO
 }

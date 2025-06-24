@@ -26,3 +26,4 @@ runs:
     INPUT_PACKAGE_NAME: ${{ inputs.package_name }}
     INPUT_GIT_USERNAME: ${{ inputs.git_username }}
     INPUT_GIT_EMAIL: ${{ inputs.git_email }}
+    GITHUB_REPOSITORY: ${{ github.repository }}
