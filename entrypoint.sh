@@ -72,7 +72,6 @@ clone_aur_repo() {
 update_pkgbuild() {
 	local pkgver_sed_escaped
 	local repo_name=${GITHUB_REPOSITORY##*/}
-	local clean_version=${PKGVER#v}
 	
 	# Escape for sed
 	pkgver_sed_escaped=$(printf '%s\n' "$PKGVER" | sed -e 's/[\/&]/\\&/g')

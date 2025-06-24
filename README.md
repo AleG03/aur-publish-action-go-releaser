@@ -55,7 +55,7 @@ jobs:
     environment: AUR
     steps:
       - uses: actions/checkout@v4
-      - uses: varrcan/aur-publish-action-go-releaser@v1
+      - uses: AleG03/aur-publish-action-go-releaser@v1.2.0
         with:
           ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
           # the rest are optional
