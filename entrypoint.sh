@@ -80,10 +80,16 @@ update_pkgbuild() {
 	sed -i "s/pkgver=.*$/pkgver=$pkgver_sed_escaped/" PKGBUILD
 	sed -i "s/pkgrel=.*$/pkgrel=1/" PKGBUILD
 	
-	# Remove all existing source lines
+	# Remove all existing source and checksum lines
 	sed -i '/^source.*=/d' PKGBUILD
 	sed -i '/^source_x86_64.*=/d' PKGBUILD
 	sed -i '/^source_aarch64.*=/d' PKGBUILD
+	sed -i '/^sha256sums.*=/d' PKGBUILD
+	sed -i '/^sha256sums_x86_64.*=/d' PKGBUILD
+	sed -i '/^sha256sums_aarch64.*=/d' PKGBUILD
+	
+	# Update arch array to include both architectures
+	sed -i "s/arch=.*/arch=('x86_64' 'aarch64')/" PKGBUILD
 	
 	# Add multi-arch sources after pkgrel line
 	sed -i "/^pkgrel=/a source_x86_64=(\"https://github.com/${GITHUB_REPOSITORY}/releases/download/v\${pkgver}/${repo_name}_\${pkgver}_linux_amd64.tar.gz\")\nsource_aarch64=(\"https://github.com/${GITHUB_REPOSITORY}/releases/download/v\${pkgver}/${repo_name}_\${pkgver}_linux_arm64.tar.gz\")" PKGBUILD
